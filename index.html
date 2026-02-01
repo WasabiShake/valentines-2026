@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,20 +10,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="floating-hearts-bg" id="hearts-container"></div>
-    
+
     <main class="container">
         <div class="glass-card" id="main-card">
             <header>
                 <h1>Happy Valentine's Day!</h1>
                 <p class="subtitle">I wanted to measure my love for you...</p>
             </header>
-            
+
             <div class="love-meter-container">
                 <div class="love-value" id="love-counter">0</div>
                 <div class="love-label">%</div>
             </div>
+
+            <div id="message-container" class="message-display"></div>
 
             <button id="love-btn" class="glow-button">
                 Click to measure love ❤️
@@ -38,4 +42,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
