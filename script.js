@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let autoInterval = null;
     let messageTimeout = null;
     let speed = 200;
+    let argumentRound = 0;
 
     // Background Hearts Generator
     function createHearts() {
@@ -140,7 +141,226 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('h1').classList.add('hidden');
 
             overloadMsg.classList.remove('hidden');
+
+            overloadMsg.classList.remove('hidden');
+
+            // Setup new input interaction
+            const inputContainer = document.getElementById('super-input-container');
+            const superInput = document.getElementById('super-love-input');
+            const submitBtn = document.getElementById('super-love-submit');
+
+            inputContainer.classList.remove('hidden');
+            superInput.focus();
+
+            argumentRound = 0;
+
+            const checkAndSubmit = () => {
+                const val = superInput.value.toLowerCase();
+                // Flexible regex to match 'love you more' or 'love you most'
+                const pattern = /l+o+v+e+.*y+o+u+.*(m+o+r+e+|m+o+s+t+)/i;
+                const isLoveMatch = pattern.test(val);
+
+                if (argumentRound === 0) {
+                    // Initial unlock
+                    if (isLoveMatch) {
+                        argumentRound++;
+                        startArgument();
+                    } else {
+                        // Shake if wrong on first try (password protect vibes)
+                        superInput.style.border = "2px solid red";
+                        superInput.classList.add('shaking');
+                        setTimeout(() => superInput.classList.remove('shaking'), 500);
+                    }
+                } else {
+                    // In string argument flow
+                    if (isLoveMatch) {
+                        argumentRound++;
+                        if (argumentRound > 3) {
+                            userWins();
+                        } else {
+                            advanceArgument();
+                        }
+                    } else {
+                        // User gave up or typed something else
+                        appWins();
+                    }
+                }
+            };
+
+            superInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    checkAndSubmit();
+                }
+            });
+
+            submitBtn.addEventListener('click', checkAndSubmit);
         }, 100);
+    }
+
+    function startArgument() {
+        const overloadMsg = document.getElementById('overload-msg');
+        // Hide initial overload text but keep container for our new drama
+        overloadMsg.querySelector('h2').style.display = 'none';
+        overloadMsg.querySelectorAll('p').forEach(p => p.style.display = 'none');
+
+        // Start visuals
+        document.body.classList.add('universe-break');
+        document.getElementById('main-card').classList.add('cosmic-shake');
+
+        // Setup chaos loop
+        startChaosEffects();
+
+        // Trigger first retort
+        advanceArgument();
+    }
+
+    function advanceArgument() {
+        // Clear input for rebuttal
+        const superInput = document.getElementById('super-love-input');
+        superInput.value = "";
+        superInput.focus();
+        superInput.placeholder = "Retort here...";
+
+        // Create or update argument message
+        let argMsg = document.getElementById('argument-message');
+        if (!argMsg) {
+            argMsg = document.createElement('h2');
+            argMsg.id = "argument-message";
+            argMsg.style.color = "#ff0055";
+            argMsg.style.fontSize = "2rem";
+            argMsg.style.marginBottom = "20px";
+            argMsg.classList.add('glitch');
+            const container = document.getElementById('super-input-container');
+            container.parentNode.insertBefore(argMsg, container);
+        }
+
+        // Intensity increases
+        const messages = [
+            "NO! I LOVE YOU MOREEEE!!!! 😡❤️",
+            "IMPOSSIBLE! MY LOVE IS INFINITE + 1!!!! 🌌🚀",
+            "DON'T ARGUE! I LOVE YOU MOSTESTEST!!!! 💥🔥"
+        ];
+
+        argMsg.innerText = messages[argumentRound - 1] || "NO! I LOVE YOU MORE!!!!";
+        argMsg.setAttribute('data-text', argMsg.innerText);
+
+        // Intensify shake
+        const mainCard = document.getElementById('main-card');
+        mainCard.style.animationDuration = (0.2 - (argumentRound * 0.05)) + 's';
+
+        // 3D "Pop Out" Effect for numbers
+        const loveValue = document.getElementById('love-counter');
+        const depth = Math.min(20, argumentRound * 5 + 3); // Reduced: 8px, 13px, 18px...
+        let shadow = '';
+        for (let i = 1; i <= depth; i++) {
+            shadow += `0 ${i}px ${Math.ceil(i / 2)}px #cc0033${i < depth ? ',' : ''}`;
+        }
+        // Add glow at the end
+        shadow += `, 0 0 20px rgba(255, 0, 85, 0.8)`;
+
+        loveValue.style.textShadow = shadow;
+        loveValue.style.transform = `scale(${1 + argumentRound * 0.2})`;
+        loveValue.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; // Bouncy pop
+
+        // Push the % symbol away from the numbers to prevent overlap
+        const loveLabel = document.querySelector('.love-label');
+        if (loveLabel) {
+            // Specific margins for each round
+            const margins = [5, 50, 120, 230];
+            const margin = margins[argumentRound] || margins[margins.length - 1];
+            loveLabel.style.marginLeft = `${margin}px`;
+            loveLabel.style.transition = "margin-left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        }
+
+        // Intensify hearts multiplicatively (faster spawn rate + multiple hearts)
+        if (chaosInterval) clearInterval(chaosInterval);
+
+        // Spawn interval gets faster
+        const heartRate = Math.max(20, 100 / (argumentRound + 1));
+
+        // Number of hearts per tick increases
+        const heartsPerTick = Math.pow(2, argumentRound); // 2, 4, 8, 16...
+
+        chaosInterval = setInterval(() => {
+            for (let i = 0; i < heartsPerTick; i++) {
+                createHearts();
+            }
+        }, heartRate);
+    }
+
+    function userWins() {
+        stopChaos();
+        document.getElementById('super-input-container').style.display = 'none';
+        const argMsg = document.getElementById('argument-message');
+        argMsg.classList.remove('glitch'); // Remove glitch for readability
+        argMsg.innerText = "FINE, YOU WIN... 😳💖";
+        argMsg.setAttribute('data-text', "FINE, YOU WIN...");
+        argMsg.style.color = "#ff4d6d";
+
+        const subMsg = document.createElement('p');
+        subMsg.innerText = "(But I still love you a lot!)";
+        subMsg.style.fontSize = "1.5rem";
+        subMsg.style.marginTop = "20px";
+        argMsg.parentNode.appendChild(subMsg);
+
+        // Calm down
+        document.body.classList.remove('universe-break');
+        document.body.style.background = "#pink";
+        document.getElementById('main-card').classList.remove('cosmic-shake');
+    }
+
+    function appWins() {
+        stopChaos();
+        document.getElementById('super-input-container').style.display = 'none';
+        const argMsg = document.getElementById('argument-message');
+        argMsg.classList.remove('glitch'); // Remove glitch for readability
+        argMsg.innerText = "I KNEW IT! I WIN! 🏆😝";
+        argMsg.setAttribute('data-text', "I WIN!");
+        argMsg.style.color = "#ffd700"; // Gold
+
+        const subMsg = document.createElement('p');
+        subMsg.innerText = "My love reigns supreme!";
+        subMsg.style.fontSize = "1.5rem";
+        subMsg.style.marginTop = "20px";
+        argMsg.parentNode.appendChild(subMsg);
+
+        document.getElementById('main-card').classList.remove('cosmic-shake');
+    }
+
+    let chaosInterval;
+    let msgInterval;
+    let updateInterval;
+
+    function startChaosEffects() {
+        const loveValue = document.getElementById('love-counter');
+        const mainCard = document.getElementById('main-card');
+
+        // Restore displays but in a broken state
+        document.querySelector('.love-meter-container').classList.remove('hidden');
+        const loveLabel = document.querySelector('.love-label');
+        loveLabel.style.display = 'inline'; // Show % label again
+        loveLabel.innerText = "%";
+
+        loveValue.classList.add('glitch');
+
+        // Chaotic number update
+        updateInterval = setInterval(() => {
+            // Scale based on argument round: 1M -> 1B -> 1T
+            const power = argumentRound || 1;
+            const min = Math.pow(1000, power + 1);
+            const max = Math.pow(1000, power + 2);
+
+            const val = Math.floor(Math.random() * (max - min)) + min;
+            loveValue.textContent = val.toLocaleString();
+        }, 50);
+
+        chaosInterval = setInterval(createHearts, 100);
+    }
+
+    function stopChaos() {
+        clearInterval(chaosInterval);
+        clearInterval(updateInterval);
+        document.body.classList.remove('universe-break');
     }
     function popHeart(heart) {
         heart.classList.add('pop');
