@@ -236,9 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Intensity increases
         const messages = [
-            "NO! I LOVE YOU MOREEEE!!!! 😡❤️",
-            "IMPOSSIBLE! MY LOVE IS INFINITE + 1!!!! 🌌🚀",
-            "DON'T ARGUE! I LOVE YOU MOSTESTEST!!!! 💥🔥"
+            "I LOVE YOU MOREEEE!!!! 😤❤️",
+            "NO, I LOVE YOU THE MOST!!!! 😤😤😤😤😤❤️❤️❤️❤️❤️",
+            "NOOOO! I LOVE YOU MOSTESTESTESTEST!!!! ❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️"
         ];
 
         argMsg.innerText = messages[argumentRound - 1] || "NO! I LOVE YOU MORE!!!!";
@@ -265,11 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Push the % symbol away from the numbers to prevent overlap
         const loveLabel = document.querySelector('.love-label');
         if (loveLabel) {
-            // Specific margins for each round
-            const margins = [5, 50, 120, 230];
-            const margin = margins[argumentRound] || margins[margins.length - 1];
-            loveLabel.style.marginLeft = `${margin}px`;
-            loveLabel.style.transition = "margin-left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+            // Specific translations for each round (move right and scale up)
+            const translations = [5, 50, 120, 230];
+            const scales = [1, 1.2, 1.4, 1.6];
+            const translateX = translations[argumentRound] || translations[translations.length - 1];
+            const scale = scales[argumentRound] || scales[scales.length - 1];
+            loveLabel.style.transform = `translateX(${translateX}px) scale(${scale})`;
+            loveLabel.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
         }
 
         // Intensify hearts multiplicatively (faster spawn rate + multiple hearts)
@@ -293,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability
-        argMsg.innerText = "FINE, YOU WIN... 😳💖";
+        argMsg.innerText = "FIIINNNEEE, YOU WIN... 😑😒💖";
         argMsg.setAttribute('data-text', "FINE, YOU WIN...");
         argMsg.style.color = "#ff4d6d";
 
@@ -314,12 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability
-        argMsg.innerText = "I KNEW IT! I WIN! 🏆😝";
+        argMsg.innerText = "HEHEHE! I WIN! 🤭🤭🤭";
         argMsg.setAttribute('data-text', "I WIN!");
         argMsg.style.color = "#ffd700"; // Gold
 
         const subMsg = document.createElement('p');
-        subMsg.innerText = "My love reigns supreme!";
+        subMsg.innerText = "I love you moreee! 🤭🤭🤭🤗🤗🤗";
         subMsg.style.fontSize = "1.5rem";
         subMsg.style.marginTop = "20px";
         argMsg.parentNode.appendChild(subMsg);
