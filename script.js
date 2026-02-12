@@ -7,6 +7,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageContainer = document.getElementById('message-container');
     const body = document.body;
 
+    // Sound Manager
+    const sounds = {
+        click: document.getElementById('sound-click'),
+        whoosh: document.getElementById('sound-whoosh'),
+        pop: document.getElementById('sound-pop'),
+        ambient: document.getElementById('sound-ambient'),
+        shake: document.getElementById('sound-shake'),
+        overload: document.getElementById('sound-overload'),
+        argument: document.getElementById('sound-argument'),
+        rising: document.getElementById('sound-rising')
+    };
+
+    function playSound(soundName, volume = 1.0) {
+        if (sounds[soundName]) {
+            sounds[soundName].volume = Math.min(Math.max(volume, 0), 1);
+            sounds[soundName].currentTime = 0; // Reset to start
+            sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+        }
+    }
+
+    function stopSound(soundName) {
+        if (sounds[soundName]) {
+            sounds[soundName].pause();
+            sounds[soundName].currentTime = 0;
+        }
+    }
+
+    function fadeInSound(soundName, targetVolume = 0.5, duration = 1000) {
+        if (!sounds[soundName]) return;
+
+        sounds[soundName].volume = 0;
+        sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+
+        const steps = 20;
+        const increment = targetVolume / steps;
+        const stepDuration = duration / steps;
+
+        let currentStep = 0;
+        const fadeInterval = setInterval(() => {
+            if (currentStep >= steps) {
+                clearInterval(fadeInterval);
+                sounds[soundName].volume = targetVolume;
+            } else {
+                sounds[soundName].volume = increment * currentStep;
+                currentStep++;
+            }
+        }, stepDuration);
+    }
+
     const messages = [
         "Heart racing! 💓",
         "Temperature rising! 🌡️",
@@ -27,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let messageTimeout = null;
     let speed = 200;
     let argumentRound = 0;
+    let risingStarted = false; // Track if rising sound has started
 
     // Background Hearts Generator
     function createHearts() {
@@ -40,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Make heart clickable
         heart.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent triggering other things
+            playSound('pop', 0.3);
             popHeart(heart);
         });
 
@@ -52,8 +103,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(createHearts, 500);
 
+    // Start button handler
+    const startOverlay = document.getElementById('start-overlay');
+    const startButton = document.getElementById('start-button');
+
+    startButton.addEventListener('click', () => {
+        // Start ambient music
+        if (sounds.ambient) {
+            sounds.ambient.volume = 0.5;
+            sounds.ambient.play().catch(e => console.log('Ambient play failed:', e));
+        }
+
+        // Hide the overlay
+        startOverlay.classList.add('hidden');
+    });
+
     loveBtn.addEventListener('click', () => {
         if (isAutoRunning) return;
+
+        // Play initial click sound
+        playSound('click', 0.7);
+
+        // Ensure ambient is playing (in case autoplay was blocked)
+        if (sounds.ambient && sounds.ambient.paused) {
+            sounds.ambient.volume = 0.2;
+            sounds.ambient.play().catch(e => console.log('Ambient play failed:', e));
+        }
 
         // Start the automated chaos on first click
         isAutoRunning = true;
@@ -92,6 +167,26 @@ document.addEventListener('DOMContentLoaded', () => {
         count += clickValue;
         loveValue.textContent = count.toLocaleString();
 
+        // Start rising sound when crossing 100
+        if (count > 100 && !risingStarted && sounds.rising) {
+            risingStarted = true;
+            sounds.rising.playbackRate = 0.5; // Start at low pitch
+            sounds.rising.volume = 0.4;
+            sounds.rising.play().catch(e => console.log('Rising sound failed:', e));
+        }
+
+        // Update rising sound pitch based on counter (0 to 1 million)
+        if (sounds.rising && risingStarted && count < 999999) {
+            // Map counter progress (0 to 999999) to playback rate (0.5 to 2.5)
+            const progress = count / 999999;
+            const playbackRate = 0.5 + (progress * 2.0); // Goes from 0.5 to 2.5
+            sounds.rising.playbackRate = playbackRate;
+
+            // Gradually increase volume as well
+            const volume = 0.4 + (progress * 0.3); // Goes from 0.4 to 0.7
+            sounds.rising.volume = Math.min(volume, 0.7);
+        }
+
         // Add random hearts on increment
         createHearts();
 
@@ -107,21 +202,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyEffects() {
         if (count > 500) {
             mainCard.classList.add('shaking');
+            playSound('shake', 0.2);
         }
         if (count > 2000) {
             mainCard.classList.remove('shaking');
             mainCard.classList.add('intense-shake');
             body.style.background = `linear-gradient(135deg, #4a0404 0%, #2b0c14 100%)`; // Darker red
+            playSound('shake', 0.4);
         }
         if (count > 10000) {
             mainCard.classList.remove('intense-shake');
             mainCard.classList.add('critical-shake');
             loveValue.style.color = '#fff';
+            playSound('shake', 0.6);
         }
     }
 
     function triggerOverload() {
         clearTimeout(autoInterval);
+
+        // Stop ambient, rising, and play overload sound
+        stopSound('ambient');
+        stopSound('rising');
+        playSound('overload', 0.8);
 
         // Final state
         loveValue.textContent = "∞";
@@ -202,6 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide initial overload text but keep container for our new drama
         overloadMsg.querySelector('h2').style.display = 'none';
         overloadMsg.querySelectorAll('p').forEach(p => p.style.display = 'none');
+
+        // Start chaotic argument music loop
+        fadeInSound('argument', 0.4, 1500);
 
         // Start visuals
         document.body.classList.add('universe-break');
@@ -292,6 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function userWins() {
         stopChaos();
+        stopSound('argument');
+        playSound('whoosh', 0.5);
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability
@@ -313,6 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function appWins() {
         stopChaos();
+        stopSound('argument');
+        playSound('whoosh', 0.5);
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability

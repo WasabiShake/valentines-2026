@@ -12,6 +12,15 @@
 </head>
 
 <body>
+    <!-- Start Overlay -->
+    <div class="start-overlay" id="start-overlay">
+        <div class="start-content">
+            <h1>💖 For My Valentine 💖</h1>
+            <p>Click to begin your special experience</p>
+            <button class="start-button" id="start-button">Start 🎵</button>
+        </div>
+    </div>
+
     <div class="floating-hearts-bg" id="hearts-container"></div>
 
     <main class="container">
@@ -51,6 +60,40 @@
             </div>
         </div>
     </main>
+
+    <!-- Sound Effects -->
+    <audio id="sound-click" preload="auto">
+        <source src="sounds/click.mp3" type="audio/mpeg">
+        <source src="sounds/click.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-whoosh" preload="auto">
+        <source src="sounds/whoosh.mp3" type="audio/mpeg">
+        <source src="sounds/whoosh.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-pop" preload="auto">
+        <source src="sounds/pop.mp3" type="audio/mpeg">
+        <source src="sounds/pop.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-ambient" preload="auto" loop>
+        <source src="sounds/ambient.mp3" type="audio/mpeg">
+        <source src="sounds/ambient.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-shake" preload="auto">
+        <source src="sounds/shake.mp3" type="audio/mpeg">
+        <source src="sounds/shake.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-overload" preload="auto">
+        <source src="sounds/overload.mp3" type="audio/mpeg">
+        <source src="sounds/overload.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-argument" preload="auto" loop>
+        <source src="sounds/argument.mp3" type="audio/mpeg">
+        <source src="sounds/argument.ogg" type="audio/ogg">
+    </audio>
+    <audio id="sound-rising" preload="auto" loop>
+        <source src="sounds/rising.mp3" type="audio/mpeg">
+        <source src="sounds/rising.ogg" type="audio/ogg">
+    </audio>
 
     <script src="script.js"></script>
 </body>
