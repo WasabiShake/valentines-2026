@@ -221,8 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function triggerOverload() {
         clearTimeout(autoInterval);
 
-        // Stop ambient, rising, and play overload sound
-        stopSound('ambient');
+        // Stop rising sound and play overload sound
         stopSound('rising');
         playSound('overload', 0.8);
 
@@ -240,8 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Show message
             document.querySelector('.love-meter-container').classList.add('hidden');
-            document.querySelector('.subtitle').classList.add('hidden');
-            document.querySelector('h1').classList.add('hidden');
+            document.querySelector('header').classList.add('hidden');
+            messageContainer.classList.add('hidden');
 
             overloadMsg.classList.remove('hidden');
 
@@ -321,6 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function advanceArgument() {
+        // Play overload sound on each argument advance
+        playSound('overload', 0.6);
+
         // Clear input for rebuttal
         const superInput = document.getElementById('super-love-input');
         superInput.value = "";
