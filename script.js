@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
         argMsg.style.color = "#ffd700"; // Gold
 
         const subMsg = document.createElement('p');
-        subMsg.innerText = "I love you moreee! 🤭🤭🤭🤗🤗🤗";
+        subMsg.innerText = "I love you moreee! 😘😘😘❤️❤️❤️";
         subMsg.style.fontSize = "1.5rem";
         subMsg.style.marginTop = "20px";
         argMsg.parentNode.appendChild(subMsg);
