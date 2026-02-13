@@ -16,14 +16,34 @@ document.addEventListener('DOMContentLoaded', () => {
         shake: document.getElementById('sound-shake'),
         overload: document.getElementById('sound-overload'),
         argument: document.getElementById('sound-argument'),
-        rising: document.getElementById('sound-rising')
+        rising: document.getElementById('sound-rising'),
+        heartbeat: document.getElementById('sound-heartbeat')
     };
 
-    function playSound(soundName, volume = 1.0) {
+    function playSound(soundName, volume = 1.0, randomize = false) {
         if (sounds[soundName]) {
-            sounds[soundName].volume = Math.min(Math.max(volume, 0), 1);
-            sounds[soundName].currentTime = 0; // Reset to start
-            sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+            // Add randomization for glitch effects
+            if (randomize) {
+                // Randomize pitch: 0.6x to 1.6x speed (wider range)
+                const pitchVariation = 0.6 + Math.random() * 1.0;
+                sounds[soundName].playbackRate = pitchVariation;
+
+                // Randomize volume slightly: ±20%
+                const volumeVariation = volume * (0.8 + Math.random() * 0.4);
+                sounds[soundName].volume = Math.min(Math.max(volumeVariation, 0), 1);
+
+                // Add tiny random delay for timing jitter (0-50ms)
+                const delay = Math.random() * 50;
+                setTimeout(() => {
+                    sounds[soundName].currentTime = 0;
+                    sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+                }, delay);
+            } else {
+                sounds[soundName].volume = Math.min(Math.max(volume, 0), 1);
+                sounds[soundName].currentTime = 0; // Reset to start
+                sounds[soundName].playbackRate = 1.0; // Reset to normal
+                sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+            }
         }
     }
 
@@ -221,9 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function triggerOverload() {
         clearTimeout(autoInterval);
 
-        // Stop rising sound and play overload sound
+        // Stop rising sound and play overload sound with randomization
         stopSound('rising');
-        playSound('overload', 0.8);
+        playSound('overload', 0.5, true);
 
         // Final state
         loveValue.textContent = "∞";
@@ -308,6 +328,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start chaotic argument music loop
         fadeInSound('argument', 0.4, 1500);
 
+        // Start heartbeat sound at initial pace/pitch/volume
+        if (sounds.heartbeat) {
+            sounds.heartbeat.playbackRate = 0.8; // Start at slower pace
+            sounds.heartbeat.volume = 0.3; // Start at lower volume
+            sounds.heartbeat.play().catch(e => console.log('Heartbeat play failed:', e));
+        }
+
         // Start visuals
         document.body.classList.add('universe-break');
         document.getElementById('main-card').classList.add('cosmic-shake');
@@ -320,8 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function advanceArgument() {
-        // Play overload sound on each argument advance
-        playSound('overload', 0.6);
+        // Play overload sound on each argument advance with randomization
+        playSound('overload', 0.5, true);
 
         // Clear input for rebuttal
         const superInput = document.getElementById('super-love-input');
@@ -396,12 +423,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 createHearts();
             }
         }, heartRate);
+
+        // Update heartbeat intensity based on argument round
+        if (sounds.heartbeat && !sounds.heartbeat.paused) {
+            // Increase pace (playback rate): 0.8 -> 1.2 -> 1.6 -> 2.0
+            const newPlaybackRate = 0.8 + (argumentRound * 0.4);
+            sounds.heartbeat.playbackRate = Math.min(newPlaybackRate, 2.5);
+
+            // Increase volume: 0.3 -> 0.5 -> 0.7 -> 0.9
+            const newVolume = 0.3 + (argumentRound * 0.2);
+            sounds.heartbeat.volume = Math.min(newVolume, 0.9);
+        }
     }
 
     function userWins() {
         stopChaos();
         stopSound('argument');
         playSound('whoosh', 0.5);
+
+        // Slow down heartbeat to very slow pace
+        if (sounds.heartbeat && !sounds.heartbeat.paused) {
+            sounds.heartbeat.playbackRate = 0.5; // Very slow pace
+            sounds.heartbeat.volume = 0.3; // Quieter
+        }
+
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability
@@ -425,6 +470,13 @@ document.addEventListener('DOMContentLoaded', () => {
         stopChaos();
         stopSound('argument');
         playSound('whoosh', 0.5);
+
+        // Slow down heartbeat to very slow pace
+        if (sounds.heartbeat && !sounds.heartbeat.paused) {
+            sounds.heartbeat.playbackRate = 0.5; // Very slow pace
+            sounds.heartbeat.volume = 0.3; // Quieter
+        }
+
         document.getElementById('super-input-container').style.display = 'none';
         const argMsg = document.getElementById('argument-message');
         argMsg.classList.remove('glitch'); // Remove glitch for readability
